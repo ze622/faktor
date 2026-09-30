@@ -18,9 +18,9 @@
 <body>
 
     <script>
-        // رمز عبور را در اینجا تغییر دهید:
-        let password = prompt("رمز عبور را وارد کنید:");
-        if (password !== "1234") { 
+        // تغییر رمز به 1122
+        let password = GAPGPTMASKTOKENp8hm2srfy7X0X"رمز عبور را وارد کنید:");
+        if (password !== "1122") { 
             alert("رمز اشتباه است!");
             document.body.innerHTML = "<h2 style='text-align:center; color:red; margin-top:50px;'>دسترسی غیرمجاز.</h2>";
             throw new Error("Invalid Password");
@@ -31,7 +31,8 @@
 
     <div class="section">
         <h4>۱. لیست قیمت‌ها (اکسل یا متن)</h4>
-        <input type="file" id="excelInput" accept=".xlsx, .xls, .csv" onchange="handleExcel(event)" style="margin-bottom: 10px;">
+        <input type="file" id="excelInput" accept=".xlsx, .xls, .csv" onchange="handleExcel(event)" style="margin-bottom: 5px;">
+        <div id="uploadStatus" style="font-size: 13px; font-weight: bold; margin-bottom: 10px;"></div>
         <textarea id="priceListInput" placeholder="مداد مشکی 1000
 پاک کن 500"></textarea>
     </div>
@@ -39,7 +40,7 @@
     <div class="section">
         <h4>۲. سفارش مشتری</h4>
         <textarea id="orderInput" placeholder="مداد 2
-کرم ویژه 2 عدد"></textarea>
+پاک کن"></textarea>
         <button onclick="generateInvoice()">ساخت فاکتور</button>
     </div>
 
@@ -54,7 +55,9 @@
 
         function handleExcel(e) {
             const file = e.target.files[0];
+            const statusEl = document.getElementById('uploadStatus');
             if (!file) return;
+            
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
@@ -63,8 +66,14 @@
                     const sheet = workbook.Sheets[workbook.SheetNames[0]];
                     const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
                     json.forEach(row => { if (row[0] && row[1]) masterDatabase[row[0].toString().trim()] = parseInt(row[1]); });
-                    alert("اکسل بارگذاری شد!");
-                } catch (err) { alert("خطا در فایل!"); }
+                    
+                    // نمایش تایید در زیر کادر
+                    statusEl.innerText = "فایل اکسل با موفقیت بارگذاری شد!";
+                    statusEl.style.color = "green";
+                } catch (err) { 
+                    statusEl.innerText = "خطا در خواندن فایل اکسل!";
+                    statusEl.style.color = "red";
+                }
             };
             reader.readAsArrayBuffer(file);
         }
@@ -91,12 +100,12 @@
                 let qty = 1;
                 let isExplicit = false;
 
-                // ۱. بررسی کلمه آخر: اگر "عدد" بود، آن را حذف کن
+                // حذف کلمه "عدد" اگر انتهای خط باشد
                 if (parts[parts.length - 1] === "عدد") {
                     parts.pop(); 
                 }
 
-                // ۲. بررسی عدد بودن کلمه جدیدِ آخر
+                // بررسی وجود عدد در انتها
                 let lastWord = parts[parts.length - 1];
                 if (!isNaN(parseInt(lastWord))) {
                     qty = parseInt(parts.pop());
@@ -109,7 +118,6 @@
                 let price = masterDatabase[foundKey] || 0;
                 let lineTotal = price * qty;
 
-                // ۳. خروجی نهایی: اگر عدد وارد شده بود بنویس، اگر نه فقط اسم و قیمت
                 if (isExplicit) {
                     invoice += `${foundName} ${qty} عدد ${lineTotal}\n`;
                 } else {
