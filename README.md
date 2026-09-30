@@ -46,7 +46,7 @@
     <script>
         // ۱. بررسی رمز عبور
         let password = prompt("رمز عبور را وارد کنید:");
-        if (password !== "1234") {
+        if (password !== "1122") {
             alert("رمز اشتباه است!");
             document.body.innerHTML = "<h2 style='text-align:center; color:red; margin-top:50px;'>دسترسی غیرمجاز.</h2>";
             throw new Error("Invalid Password");
