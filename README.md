@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فاکتورساز پیشرفته</title>
+    <title>فاکتورساز پیشرفته ایتا</title>
     <!-- کتابخانه خواندن فایل‌های اکسل -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { font-family: Tahoma, sans-serif; padding: 15px; background: #f9f9f9; }
+        body { font-family: Tahoma, sans-serif; padding: 15px; background: #f9f9f9; line-height: 1.6; }
         textarea { width: 100%; height: 100px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; padding: 8px; box-sizing: border-box; }
         .section { background: white; padding: 15px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h3 { color: #333; margin-top: 0; }
         h4 { margin-top: 0; color: #444; }
         button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
         button:hover { background: #0056b3; }
@@ -18,38 +19,40 @@
 </head>
 <body>
 
+    <h2 style="text-align: center;">فاکتورساز پیشرفته ایتا</h2>
+
     <div class="section">
         <h4>۱. لیست قیمت‌ها (اکسل یا متن)</h4>
         <input type="file" id="excelInput" accept=".xlsx, .xls, .csv" onchange="handleExcel(event)" style="margin-bottom: 10px;">
-        <p style="font-size: 12px; color: #666;">یا لیست محصولات و قیمت‌ها را اینجا بچسبانید (هر خط: نام محصول و قیمت):</p>
-        <textarea id="priceListInput" placeholder="کرم نارگیل 636
-صابون گل 500"></textarea>
+        <p style="font-size: 12px; color: #666;">یا لیست محصولات و قیمت‌ها را اینجا بچسبانید (مثال: نام قیمت):</p>
+        <textarea id="priceListInput" placeholder="مداد مشکی 1000
+پاک کن 500"></textarea>
     </div>
 
     <div class="section">
         <h4>۲. سفارش مشتری</h4>
-        <p style="font-size: 12px; color: #666;">نام محصول و تعداد را وارد کنید (مثلاً: کرم 1):</p>
-        <textarea id="orderInput" placeholder="کرم 1
-صابون 2"></textarea>
+        <p style="font-size: 12px; color: #666;">نام محصول و تعداد را وارد کنید (مثال: مداد 2):</p>
+        <textarea id="orderInput" placeholder="مداد 2
+پاک کن 3"></textarea>
         <button onclick="generateInvoice()">ساخت فاکتور</button>
     </div>
 
     <div class="section">
         <h4>۳. خروجی فاکتور</h4>
-        <div class="output-box" id="output">فاکتور اینجا نمایش داده می‌شود...</div>
+        <div class="output-box" id="output">فاکتور آماده نمایش...</div>
         <button onclick="copyInvoice()" style="margin-top:10px; background-color: #28a745;">کپی فاکتور</button>
     </div>
 
     <script>
-        // ۱. بررسی رمز عبور در ابتدای ورود به برنامه
-        let password = prompt("لطفاً رمز عبور را وارد کنید:");
+        // ۱. بررسی رمز عبور
+        let password = prompt("رمز عبور را وارد کنید:");
         if (password !== "1234") {
             alert("رمز اشتباه است!");
-            document.body.innerHTML = "<h2 style='text-align:center; color:red; margin-top:50px;'>دسترسی غیرمجاز. لطفاً صفحه را رفرش کنید و رمز صحیح را وارد نمایید.</h2>";
+            document.body.innerHTML = "<h2 style='text-align:center; color:red; margin-top:50px;'>دسترسی غیرمجاز.</h2>";
             throw new Error("Invalid Password");
         }
 
-        let masterDatabase = {}; // حافظه برنامه برای نگهداری قیمت‌ها
+        let masterDatabase = {}; // حافظه برنامه
 
         // خواندن فایل اکسل
         function handleExcel(e) {
@@ -68,7 +71,7 @@
                             masterDatabase[row[0].toString().trim()] = parseInt(row[1]);
                         }
                     });
-                    alert("اکسل با موفقیت بارگذاری شد و قیمت‌ها ذخیره شدند!");
+                    alert("اکسل با موفقیت بارگذاری شد!");
                 } catch (err) {
                     alert("خطا در خواندن فایل اکسل!");
                 }
@@ -78,34 +81,32 @@
 
         // ساخت فاکتور
         function generateInvoice() {
-            // خواندن و ترکیب قیمت‌های متنی (اگر کاربر در کادر متن قیمت وارد کرده باشد)
+            // ترکیب حافظه با متن دستی
             const manualText = document.getElementById('priceListInput').value;
-            if (manualText.trim() !== "") {
-                manualText.split('\n').forEach(line => {
-                    const parts = line.trim().split(/\s+/);
-                    if (parts.length >= 2) {
-                        const price = parseInt(parts.pop());
-                        const name = parts.join(' ');
-                        masterDatabase[name] = price;
-                    }
-                });
-            }
+            manualText.split('\n').forEach(line => {
+                const parts = line.trim().split(/\s+/);
+                if (parts.length >= 2) {
+                    const price = parseInt(parts.pop());
+                    const name = parts.join(' ');
+                    masterDatabase[name] = price;
+                }
+            });
 
-            // خواندن سفارشات مشتری
-            const ordersText = document.getElementById('orderInput').value;
-            const orders = ordersText.split('\n');
+            // خواندن سفارش
+            const orders = document.getElementById('orderInput').value.split('\n');
             let invoice = "";
             let total = 0;
 
             orders.forEach(line => {
                 if (!line.trim()) return;
                 const parts = line.trim().split(/\s+/);
-                const qty = parseInt(parts.pop() || 1); // آخرین بخش تعداد است (پیش‌فرض ۱)
-                const name = parts.join(' '); // بقیه متن نام محصول است
+                const qty = parseInt(parts.pop() || 1);
+                const name = parts.join(' ');
 
-                // جستجوی هوشمند (اگر نام ناقص وارد شده باشد)
-                let foundName = Object.keys(masterDatabase).find(k => k.includes(name) || name.includes(k)) || name;
-                let price = masterDatabase[foundName] || 0;
+                // جستجوی هوشمند (اگر در دیتابیس بود یا جزئی از نام بود)
+                let foundKey = Object.keys(masterDatabase).find(k => k.includes(name) || name.includes(k));
+                let foundName = foundKey || name;
+                let price = masterDatabase[foundKey] || 0;
                 let lineTotal = price * qty;
 
                 invoice += `${foundName} ${qty} عدد ${lineTotal}\n`;
@@ -116,13 +117,11 @@
             document.getElementById('output').innerText = invoice;
         }
 
-        // دکمه کپی به کلیپ‌بورد
+        // کپی به کلیپ‌بورد
         function copyInvoice() {
             const textToCopy = document.getElementById('output').innerText;
             navigator.clipboard.writeText(textToCopy).then(() => {
-                alert("فاکتور با موفقیت کپی شد!");
-            }).catch(err => {
-                alert("خطا در کپی کردن متن!");
+                alert("فاکتور کپی شد!");
             });
         }
     </script>
