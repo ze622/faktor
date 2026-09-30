@@ -39,7 +39,7 @@
     <div class="section">
         <h4>۲. سفارش مشتری</h4>
         <textarea id="orderInput" placeholder="مداد 2
-کرم نارگیل"></textarea>
+کرم ویژه 2 عدد"></textarea>
         <button onclick="generateInvoice()">ساخت فاکتور</button>
     </div>
 
@@ -87,12 +87,18 @@
             orders.forEach(line => {
                 if (!line.trim()) return;
                 
-                const parts = line.trim().split(/\s+/);
+                let parts = line.trim().split(/\s+/);
                 let qty = 1;
                 let isExplicit = false;
 
-                // بررسی اینکه آیا کلمه آخر عدد است؟
-                if (!isNaN(parseInt(parts[parts.length - 1]))) {
+                // ۱. بررسی کلمه آخر: اگر "عدد" بود، آن را حذف کن
+                if (parts[parts.length - 1] === "عدد") {
+                    parts.pop(); 
+                }
+
+                // ۲. بررسی عدد بودن کلمه جدیدِ آخر
+                let lastWord = parts[parts.length - 1];
+                if (!isNaN(parseInt(lastWord))) {
                     qty = parseInt(parts.pop());
                     isExplicit = true;
                 }
@@ -103,7 +109,7 @@
                 let price = masterDatabase[foundKey] || 0;
                 let lineTotal = price * qty;
 
-                // شرط جدید: اگر تعداد خودکار بوده، کلمه عدد حذف شود
+                // ۳. خروجی نهایی: اگر عدد وارد شده بود بنویس، اگر نه فقط اسم و قیمت
                 if (isExplicit) {
                     invoice += `${foundName} ${qty} عدد ${lineTotal}\n`;
                 } else {
