@@ -1,9 +1,10 @@
-<عبورعبورعبورTYPE html>
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>کرشمه - فاکتورساز</title>
+    <title>فاکتورساز</title>
+    <!-- لود کردن SDK ایتا -->
     <script src="https://eitaa.com/js/telegram-web-app.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 
@@ -16,7 +17,6 @@
         button:hover { background-color: #218838; }
         #copyButton { background-color: #1677b8; margin-top: 10px; }
         #copyButton:hover { background-color: #12669e; }
-        #copyButton:disabled { background-color: #999; cursor: not-allowed; }
         #tableContainer { margin-top: 25px; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px; }
@@ -39,9 +39,9 @@
     <!-- صفحه ورود -->
     <div id="login-overlay">
         <div class="login-card">
-            <h3>ورود به فاکتورساز</h3>
+            <h3>ورود به برنامه</h3>
             <div class="admin-msg">⚠️ برای دریافت رمز عبور به ادمین مراجعه کنید.</div>
-            <input type="password" id="passInput" place 4153 ">
+            <input type="password" id="passInput" placeholder="رمز عبور">
             <button onclick="checkPass()">ورود</button>
         </div>
     </div>
@@ -49,7 +49,7 @@
     <!-- برنامه اصلی -->
     <div id="main-app">
         <div class="container">
-            <h2>فاکتورساز </h2>
+            <h2>فاکتورساز</h2>
 
             <div class="form-group">
                 <label for="customerName">نام مشتری:</label>
@@ -108,13 +108,19 @@
     </div>
 
     <script>
-        // ۱. مقداردهی اولیه SDK ایتا
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand(); 
+        // ۱. بررسی امن برای SDK ایتا
+        try {
+            if (window.Telegram && window.Telegram.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+                tg.expand();
+            }
+        } catch (e) {
+            console.log("SDK ایتا در این محیط در دسترس نیست.");
+        }
 
         // ۲. منطق ورود امن
-        const MY_PASSWORD = "GAPGPTMASKTOKEN1hlvq80ct55X0X"; 
+        const MY_PASSWORD = "GAPGPTMASKTOKEN4zna67oy8ckX0X"; 
         let isLoggedIn = false;
 
         function checkPass() {
@@ -133,7 +139,7 @@
         let rowCounter = 1;
 
         function addProduct() {
-            if (!isLoggedIn) return; // اگر وارد نشده باشد، کاری انجام نده
+            if (!isLoggedIn) return;
 
             const productName = document.getElementById('productName').value.trim();
             const productQuantity = parseInt(document.getElementById('productQuantity').value) || 1;
@@ -155,7 +161,6 @@
 
             renderTable();
 
-            // پاک کردن فیلدهای محصول برای افزودن بعدی
             document.getElementById('productName').value = '';
             document.getElementById('productQuantity').value = '1';
             document.getElementById('productPrice').value = '';
@@ -164,7 +169,7 @@
 
         function renderTable() {
             const tableBody = document.querySelector("#invoiceTable tbody");
-            tableBody.innerHTML = ''; // پاک کردن جدول قبلی
+            tableBody.innerHTML = '';
             let totalAmount = 0;
 
             invoiceItems.forEach(item => {
@@ -190,7 +195,7 @@
             const customerPhone = document.getElementById('customerPhone').value.trim() || "---";
             const factorDescription = document.getElementById('factorDescription').value.trim();
 
-            let invoiceText = `✨ فاکتور فروش کرشمه ✨\n\n`;
+            let invoiceText = `✨ فاکتور فروش ✨\n\n`;
             invoiceText += `نام مشتری: ${customerName}\n`;
             invoiceText += `شماره تماس: ${customerPhone}\n`;
             if (factorDescription) {
@@ -208,20 +213,20 @@
             invoiceText += `جمع کل: ${document.getElementById('totalAmount').textContent}\n`;
             invoiceText += `\nبا تشکر از حسن انتخاب شما!`;
 
-            // استفاده از Clipboard API برای کپی متن
             navigator.clipboard.writeText(invoiceText).then(() => {
                 alert("فاکتور با موفقیت کپی شد! می‌توانید آن را در ایتا پیست کنید.");
-                tg.close(); // بستن برنامه بعد از کپی موفق
+                try {
+                    if (window.Telegram && window.Telegram.WebApp) {
+                        window.Telegram.WebApp.close();
+                    }
+                } catch (e) {}
             }).catch(err => {
                 alert("خطا در کپی کردن فاکتور: " + err);
             });
         }
 
-        // مقداردهی اولیه جدول و جمع کل در صورت وجود اطلاعات قبلی (در این نسخه لازم نیست چون از اول خالی است)
         document.addEventListener('DOMContentLoaded', () => {
-            // اگر داده‌ای از قبل در localStorage ذخیره شده بود، آن را بارگذاری کنید
-            // فعلا نیازی نیست چون برنامه تازه شروع شده
-             renderTable(); // برای نمایش ردیف جمع کل در ابتدا
+             renderTable();
         });
     </script>
 </body>
