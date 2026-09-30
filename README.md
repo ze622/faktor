@@ -18,8 +18,8 @@
 <body>
 
     <script>
-        // تغییر رمز به 1122
-        let password = GAPGPTMASKTOKENp8hm2srfy7X0X"رمز عبور را وارد کنید:");
+        // کنترل امنیتی
+        let password = prompt("رمز عبور را وارد کنید:");
         if (password !== "1122") { 
             alert("رمز اشتباه است!");
             document.body.innerHTML = "<h2 style='text-align:center; color:red; margin-top:50px;'>دسترسی غیرمجاز.</h2>";
@@ -67,7 +67,6 @@
                     const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
                     json.forEach(row => { if (row[0] && row[1]) masterDatabase[row[0].toString().trim()] = parseInt(row[1]); });
                     
-                    // نمایش تایید در زیر کادر
                     statusEl.innerText = "فایل اکسل با موفقیت بارگذاری شد!";
                     statusEl.style.color = "green";
                 } catch (err) { 
@@ -79,6 +78,7 @@
         }
 
         function generateInvoice() {
+            // ترکیب دیتابیس فعلی با متن دستی (بدون حذف اطلاعات قبلی)
             const manualText = document.getElementById('priceListInput').value;
             manualText.split('\n').forEach(line => {
                 const parts = line.trim().split(/\s+/);
@@ -97,15 +97,15 @@
                 if (!line.trim()) return;
                 
                 let parts = line.trim().split(/\s+/);
-                let qty = 1;
+                let qty = 1; // مقدار پیش‌فرض
                 let isExplicit = false;
 
-                // حذف کلمه "عدد" اگر انتهای خط باشد
+                // ۱. حذف کلمه "عدد" اگر انتهای خط باشد
                 if (parts[parts.length - 1] === "عدد") {
                     parts.pop(); 
                 }
 
-                // بررسی وجود عدد در انتها
+                // ۲. بررسی وجود عدد در انتها (تعداد)
                 let lastWord = parts[parts.length - 1];
                 if (!isNaN(parseInt(lastWord))) {
                     qty = parseInt(parts.pop());
@@ -113,15 +113,20 @@
                 }
                 
                 let name = parts.join(' ');
+                
+                // ۳. جستجوی هوشمند در دیتابیس
                 let foundKey = Object.keys(masterDatabase).find(k => k.includes(name) || name.includes(k));
+                let price = foundKey ? masterDatabase[foundKey] : 0;
                 let foundName = foundKey || name;
-                let price = masterDatabase[foundKey] || 0;
+                
+                // ۴. محاسبه قیمت (مدیریت NaN با ضرب ساده)
                 let lineTotal = price * qty;
 
+                // ۵. فرمت خروجی (فقط در صورتی که تعداد دستی وارد شده باشد "عدد" را بنویس)
                 if (isExplicit) {
-                    invoice += `${foundName} ${qty} عدد ${lineTotal}\n`;
+                    invoice += `${foundName} ${qty} عدد: ${lineTotal}\n`;
                 } else {
-                    invoice += `${foundName} ${lineTotal}\n`;
+                    invoice += `${foundName}: ${lineTotal}\n`;
                 }
                 
                 total += lineTotal;
