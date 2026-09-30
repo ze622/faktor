@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<عبورعبورعبورTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -39,9 +39,9 @@
     <!-- صفحه ورود -->
     <div id="login-overlay">
         <div class="login-card">
-            <h3>ورود به کرشمه</h3>
+            <h3>ورود به فاکتورساز</h3>
             <div class="admin-msg">⚠️ برای دریافت رمز عبور به ادمین مراجعه کنید.</div>
-            <input type="password" id="passInput" placeholder="رمز عبور">
+            <input type="password" id="passInput" place 4153 ">
             <button onclick="checkPass()">ورود</button>
         </div>
     </div>
@@ -49,7 +49,7 @@
     <!-- برنامه اصلی -->
     <div id="main-app">
         <div class="container">
-            <h2>فاکتورساز کرشمه</h2>
+            <h2>فاکتورساز </h2>
 
             <div class="form-group">
                 <label for="customerName">نام مشتری:</label>
