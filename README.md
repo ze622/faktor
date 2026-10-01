@@ -27,7 +27,7 @@
         }
     </script>
 
-    <h2 style="text-align: center;">فاکتورساز پیشرفته</h2>
+    <h2 style="text-align: center;">فاکتورساز هوشمند ایتا</h2>
 
     <div class="section">
         <h4>۱. لیست قیمت‌ها (اکسل یا متن)</h4>
