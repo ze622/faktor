@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فاکتورساز پیشرفته ایتا</title>
+    <title>فاکتورساز هوشمند ایتا</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { font-family: Tahoma, sans-serif; padding: 15px; background: #f9f9f9; }
